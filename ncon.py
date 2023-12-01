@@ -145,7 +145,7 @@ def get_leg_sequence(tensor_list, leg_links, route_couple):
                 leg_dim.append(
                     tensor_list[index_tensor].shape(leg_link.index(leg)))
         order = np.argsort(leg_dim)[::-1]
-        sequence.extend(np.array(a)[order])
+        sequence.extend(np.array(leg_trace)[order])
         leg_links[index_tensor] = set(leg_link)
 
     for i, j in route_couple:
