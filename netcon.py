@@ -1,10 +1,9 @@
 import numpy as np
 import opt_einsum as oe
-import copy
 
 
 def route2sequence(tensor_list, leg_links, route_couple):
-    leg_links = copy.deepcopy(leg_links)
+    leg_links = [[leg for leg in leg_link] for leg_link in leg_links]
     sequence = []
     for index_tensor, leg_link in enumerate(leg_links):
         leg_trace = [leg for leg in leg_link if leg_link.count(leg) == 2]
@@ -24,15 +23,15 @@ def route2sequence(tensor_list, leg_links, route_couple):
 
 
 def get_opt_sequence(
-    tensor_list, leg_links, optimize="optimal", memory_limit=None, verbosity=True
-):
+    tensor_list, leg_links, optimize="optimal", memory_limit=None, verbosity=False
+):  # optimize: 'optimal', 'branch-all', 'branch-2', 'greedy', 'auto'.
     leg_str_ = [
         "".join([oe.get_symbol(leg) for leg in leg_link]) for leg_link in leg_links
     ]
     subscript = ",".join(leg_str_) + "->"
 
     route_couple, path_info = oe.contract_path(
-        subscript, *tensor_list, memory_limit=memory_limit
+        subscript, *tensor_list, optimize=optimize, memory_limit=memory_limit
     )
 
     if verbosity:
@@ -65,5 +64,5 @@ if __name__ == "__main__":
     for leg_link in leg_links:
         tensor_list.append(np.random.random_sample([10] * len(leg_link)))
 
-    sequence = get_opt_sequence(tensor_list, leg_links, verbosity=True)
+    sequence = get_opt_sequence(tensor_list, leg_links, optimize='branch-all', verbosity=True)
     print("Contraction Sequence:", sequence)
